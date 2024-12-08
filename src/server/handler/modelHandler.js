@@ -93,23 +93,35 @@ async function postPredictHandler(request, h) {
 }
 
 async function getHistoriesHandler(request, h) {
-  const histories = await getData();
-  const result = [];
-  histories.forEach((doc) => {
-    result.push({
+  try {
+    const { email } = request.query; // Ambil parameter email dari query
+    const histories = await getData(email); // Panggil fungsi dengan email
+    const result = histories.map((doc) => ({
       id: doc.id,
       history: {
-        result: doc.data().result,
-        createdAt: doc.data().createdAt,
-        suggestion: doc.data().suggestion,
-        id: doc.data().id,
+        id: doc.id,
+        email: doc.email,
+        result: doc.result,
+        description: doc.description,
+        confidenceScore: doc.confidenceScore,
+        createdAt: doc.createdAt,
       },
+    }));
+
+    return h.response({
+      status: "success",
+      data: result,
     });
-  });
-  return h.response({
-    status: "success",
-    data: result,
-  });
+  } catch (err) {
+    console.error("Error in getHistoriesHandler:", err); // Log error ke console
+    return h
+      .response({
+        status: "fail",
+        message: "An internal server error occurred",
+      })
+      .code(500);
+  }
 }
+
 
 module.exports = { postPredictHandler, getHistoriesHandler };

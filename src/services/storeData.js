@@ -1,50 +1,33 @@
-const mysql = require("mysql2");
+const admin = require("../utils/firebase");
+const db = admin.firestore(); // Inisialisasi Firestore
 
-// Membuat koneksi ke database MySQL
-const db = mysql.createConnection({
-  host: "localhost", // Sesuaikan dengan host MySQL Anda
-  user: "root", // Sesuaikan dengan username MySQL Anda
-  password: "", // Sesuaikan dengan password MySQL Anda
-  database: "skindesease", // Sesuaikan dengan nama database Anda
-});
-
-// Fungsi untuk menyimpan data ke MySQL
+// Fungsi untuk menyimpan data
 async function storeData(id, data) {
-  return new Promise((resolve, reject) => {
-    const query =
-      "INSERT INTO predictions (id, email, result, description, confidenceScore, createdAt) VALUES (?, ?, ?, ?, ?, ?)";
-    const values = [
-      id,
-      data.email,
-      data.result,
-      data.description,
-      data.confidenceScore,
-      data.createdAt,
-    ];
-
-    db.execute(query, values, (err, result) => {
-      if (err) {
-        console.error("Error saving data to MySQL:", err);
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
+  const predictCollection = db.collection("predictions");
+  await predictCollection.doc(id).set(data);
 }
 
-// Fungsi untuk mengambil data dari MySQL
-async function getData() {
-  return new Promise((resolve, reject) => {
-    db.execute("SELECT * FROM predictions", (err, results) => {
-      if (err) {
-        console.error("Error fetching data from MySQL:", err);
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
-  });
+// Fungsi untuk mengambil data
+async function getData(email) {
+  try {
+    const predictCollection = db.collection("predictions");
+    const snapshot = await predictCollection
+      .where("email", "==", email) // Filter berdasarkan email
+      .orderBy("createdAt", "desc") // Urutkan berdasarkan createdAt terbaru
+      .get();
+
+    if (snapshot.empty) {
+      return []; // Jika tidak ada data, kembalikan array kosong
+    }
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (err) {
+    console.error("Error in getData:", err);
+    throw err; // Lempar error agar handler menangani
+  }
 }
 
 module.exports = { storeData, getData };

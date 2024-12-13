@@ -1,0 +1,1 @@
+local : Contains files or classes for managing local storage, such as SQLite databases or SharedPreferences.

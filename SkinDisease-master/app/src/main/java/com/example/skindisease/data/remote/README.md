@@ -1,0 +1,1 @@
+remote: Contains files or classes that manage interactions with data from the network, for example APIs or servers.

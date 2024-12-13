@@ -14,16 +14,12 @@ const routes = [
         allow: "multipart/form-data",
         multipart: true,
       },
-      auth: "jwt",
     },
   },
   {
     path: "/predict/histories",
     method: "GET",
     handler: getHistoriesHandler,
-    options: {
-      auth: "jwt", // Hanya memerlukan token JWT untuk akses
-    },
   },
 ];
 

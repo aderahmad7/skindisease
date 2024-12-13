@@ -40,7 +40,7 @@ async function postPredictHandler(request, h) {
 
     // Kirim POST request ke API Python
     const response = await axios.post(
-      "http://192.168.100.111:5000/predict",
+      "https://model-api-151581457522.asia-southeast2.run.app/predict",
       formData,
       {
         headers: {
@@ -122,6 +122,5 @@ async function getHistoriesHandler(request, h) {
       .code(500);
   }
 }
-
 
 module.exports = { postPredictHandler, getHistoriesHandler };
